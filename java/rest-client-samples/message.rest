@@ -1,0 +1,3 @@
+@publish-service = localhost:7071
+
+GET http://{{publish-service}}/api/publish?message=test100
