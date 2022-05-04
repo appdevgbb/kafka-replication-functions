@@ -6,7 +6,7 @@
     "topic": "{source-topic-name}",
     "replicatedTopic": "{destination-topic-name}",
     "BrokerList": "{namespace-name}.servicebus.windows.net:9093",    
-    "EventHubConnectionString": "{topic-connection-string}",
-    "ReplicatedEventHubConnectionString": "{topic-connection-string}"
+    "EventHubConnectionString": "{source-topic-connection-string}",
+    "ReplicatedEventHubConnectionString": "{destination-topic-connection-string}"
   }
 }
