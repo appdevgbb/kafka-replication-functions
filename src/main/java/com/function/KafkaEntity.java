@@ -1,0 +1,19 @@
+package com.function;
+
+public class KafkaEntity {
+    int Offset;
+    int Partition;
+    String Timestamp;
+    String Topic;
+    String Value;
+    KafkaHeaders Headers[];
+
+    public KafkaEntity(int Offset, int Partition, String Topic, String Timestamp, String Value,KafkaHeaders[] headers) {
+        this.Offset = Offset;
+        this.Partition = Partition;
+        this.Topic = Topic;
+        this.Timestamp = Timestamp;
+        this.Value = Value;
+        this.Headers = headers;
+    }
+}
