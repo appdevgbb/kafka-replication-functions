@@ -1,0 +1,13 @@
+{
+    "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "topic": "{source-topic-name}",
+    "replicatedTopic": "{target-topic-name}",
+    "BrokerList": "{event-hubs-namespace-name}.servicebus.windows.net:9093",
+    "ReplicatedBrokerList": "zohan-events.servicebus.windows.net:9093",
+    "KafkaPassword": "{source-connection-string}",
+    "ReplicatedKafkaPassword": "{target-connection-string}"
+  }
+}
