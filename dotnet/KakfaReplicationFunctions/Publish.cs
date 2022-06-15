@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Microsoft.Azure.WebJobs.Extensions.Kafka;
 
-namespace KakfaReplicationFunctions
+namespace KafkaReplicationFunctions
 {
     public static class Publish
     {
@@ -17,9 +17,9 @@ namespace KakfaReplicationFunctions
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
             [Kafka("BrokerList",
-                   "replicatedTopic",
+                   "topic",
                    Username ="$ConnectionString",
-                   Password = "%ReplicatedKafkaPassword%",  
+                   Password = "%KafkaPassword%",  
                    Protocol = BrokerProtocol.SaslSsl,
                    SslCaLocation = "confluent_cloud_cacert.pem",
                    AuthenticationMode = BrokerAuthenticationMode.Plain)] IAsyncCollector<KafkaEventData<string>> replicatedEvents,
@@ -31,8 +31,13 @@ namespace KakfaReplicationFunctions
             {                
                 var kafkaEvent = new KafkaEventData<string>()
                 {
-                    Value = $"Created on: {DateTime.UtcNow.ToLongDateString()}",
+                    // Test value
+                    Value = $"Created on: {DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()}",
                 };
+
+                // Add some headers
+                kafkaEvent.Headers.Add("test-header1", System.Text.Encoding.UTF8.GetBytes("dotnet-test1"));
+                kafkaEvent.Headers.Add("test-header2", System.Text.Encoding.UTF8.GetBytes("dotnet-test2"));
 
                 await replicatedEvents.AddAsync(kafkaEvent);
             }
