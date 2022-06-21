@@ -65,7 +65,7 @@ public class Function {
                 sslCaLocation = "confluent_cloud_cacert.pem", // Enable this line for windows.
                 cardinality = Cardinality.MANY,
                 dataType = "string"
-             ) String[] kafkaEvents,
+             ) List<String> kafkaEvents,
              @KafkaOutput(
                 name = "KafkaOutput",
                 topic = "replicatedTopic",  
@@ -75,15 +75,29 @@ public class Function {
                 authenticationMode = BrokerAuthenticationMode.PLAIN,
                 sslCaLocation = "confluent_cloud_cacert.pem", // Enable this line for windows.  
                 protocol = BrokerProtocol.SASLSSL
-            )  OutputBinding<String[]> output,             
+            )  OutputBinding<KafkaEntity[]> output,             
             final ExecutionContext context) {
 
-            context.getLogger().info("replicating " + kafkaEvents.length + " messages");                            
-            for (String kevent: kafkaEvents) {
-                context.getLogger().info(kevent);
-            } 
+            int numEvents = kafkaEvents.size();
+            context.getLogger().info("replicating " + numEvents + " messages");
+            
+            // Create an array for the replicated events
+            KafkaEntity[] replicatedEvents = new KafkaEntity[numEvents];
+
+            Gson gson = new Gson();            
+            for (int i = 0; i < kafkaEvents.size(); i++) {                
+                KafkaEntity kevent = gson.fromJson(kafkaEvents.get(i),KafkaEntity.class);
+                context.getLogger().info("Java Kafka trigger function called for message: " + kevent.Value);
+                context.getLogger().info("Headers for the message:");
+                for (KafkaHeaders header : kevent.Headers) {
+                    String decodedValue = new String(Base64.getDecoder().decode(header.Value));
+                    context.getLogger().info("Key:" + header.Key + " Value:" + decodedValue);                    
+                }         
+                
+                replicatedEvents[i] = kevent;
+            }               
           
-            output.setValue(kafkaEvents);
+            output.setValue(replicatedEvents);
     }
 
 }
