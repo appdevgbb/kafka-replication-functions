@@ -39,23 +39,11 @@ public class Function {
         
         KafkaEntity[] kafkaEvents = new KafkaEntity[1];
         KafkaHeaders[] headers1 = new KafkaHeaders[1];
-        headers1[0] = new KafkaHeaders("test-header-key", "test-header-value");
-        int offset = 364;
-        int partition = 0;
-        String timestamp = "2022-04-09T03:20:06.591Z";
-        String topic = "orders";
-        KafkaEntity kafkaEvent1 = new KafkaEntity(offset, partition, topic, timestamp, message, headers1);
+        headers1[0] = new KafkaHeaders("test-header-key", "test-header-value");        
+        KafkaEntity kafkaEvent1 = new KafkaEntity(message, headers1);
         kafkaEvents[0] = kafkaEvent1;                
-
-        /* 
-        KafkaHeaders[] headers = new KafkaHeaders[1];
-        headers[0] = new KafkaHeaders("test", "java");
-        KafkaEntity kevent = new KafkaEntity(364, 0, "topic", "2022-04-09T03:20:06.591Z", message, headers);
-        //KafkaEntity kevent = new KafkaEntity(message, headers);
-        output.setValue(kevent);        
-        */
         
-        //output.setValue(message);        
+        //output.setValue(message);
         output.setValue(kafkaEvents);
 
         return request.createResponseBuilder(HttpStatus.OK).body(message).build();
@@ -76,7 +64,7 @@ public class Function {
                 sslCaLocation = "confluent_cloud_cacert.pem", // Enable this line for windows.
                 cardinality = Cardinality.MANY,
                 dataType = "string"
-             ) String[] kafkaEvents,
+             ) KafkaEntity[] kafkaEvents,
              @KafkaOutput(
                 name = "KafkaOutput",
                 topic = "replicatedTopic",  
@@ -86,7 +74,7 @@ public class Function {
                 authenticationMode = BrokerAuthenticationMode.PLAIN,
                 sslCaLocation = "confluent_cloud_cacert.pem", // Enable this line for windows.  
                 protocol = BrokerProtocol.SASLSSL
-            )  OutputBinding<String[]> output,             
+            )  OutputBinding<KafkaEntity[]> output,             
             final ExecutionContext context) {
                         
             for (String kevent: kafkaEvents) {
