@@ -1,5 +1,9 @@
 package com.function;
 
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.OffsetDateTime;
+
 public class KafkaEntity {
     public int Offset;
     public int Partition;
@@ -20,5 +24,10 @@ public class KafkaEntity {
     public KafkaEntity(String Value, KafkaHeaders[] headers){
         this.Headers = headers;
         this.Value = Value;
+        this.Offset = 0;
+        this.Partition = 0;
+        this.Topic = "";
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        this.Timestamp = now.toString();        
     }
 }
