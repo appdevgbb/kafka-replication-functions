@@ -1,6 +1,7 @@
 package com.function;
 
 import java.util.*;
+import com.google.gson.Gson;
 import com.microsoft.azure.functions.annotation.*;
 import com.microsoft.azure.functions.*;
 
@@ -64,7 +65,7 @@ public class Function {
                 sslCaLocation = "confluent_cloud_cacert.pem", // Enable this line for windows.
                 cardinality = Cardinality.MANY,
                 dataType = "string"
-             ) KafkaEntity[] kafkaEvents,
+             ) String[] kafkaEvents,
              @KafkaOutput(
                 name = "KafkaOutput",
                 topic = "replicatedTopic",  
@@ -74,14 +75,14 @@ public class Function {
                 authenticationMode = BrokerAuthenticationMode.PLAIN,
                 sslCaLocation = "confluent_cloud_cacert.pem", // Enable this line for windows.  
                 protocol = BrokerProtocol.SASLSSL
-            )  OutputBinding<KafkaEntity[]> output,             
+            )  OutputBinding<String[]> output,             
             final ExecutionContext context) {
-                        
+
+            context.getLogger().info("replicating " + kafkaEvents.length + " messages");                            
             for (String kevent: kafkaEvents) {
                 context.getLogger().info(kevent);
-            }                    
-
-            context.getLogger().info("replicating " + kafkaEvents.length + " messages");
+            } 
+          
             output.setValue(kafkaEvents);
     }
 
