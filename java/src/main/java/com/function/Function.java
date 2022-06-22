@@ -89,11 +89,15 @@ public class Function {
                 KafkaEntity kevent = gson.fromJson(kafkaEvents.get(i),KafkaEntity.class);
                 context.getLogger().info("Java Kafka trigger function called for message: " + kevent.Value);
                 context.getLogger().info("Headers for the message:");
-                for (KafkaHeaders header : kevent.Headers) {
-                    String decodedValue = new String(Base64.getDecoder().decode(header.Value));
-                    context.getLogger().info("Key:" + header.Key + " Value:" + decodedValue);                    
-                }         
-                
+                            
+                // Decode the header value before setting it in the replicated event header
+                for (int h = 0; h < kevent.Headers.length; h++){
+                    String decodedValue = new String(Base64.getDecoder().decode(kevent.Headers[h].Value));
+                    context.getLogger().info("Key:" + kevent.Headers[h].Key + " Value:" + decodedValue); 
+                    kevent.Headers[h].Value = decodedValue;
+                }
+
+                // Add the replicated event to the array for the output binding
                 replicatedEvents[i] = kevent;
             }               
           
