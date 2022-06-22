@@ -22,7 +22,10 @@ public class KafkaEntity {
     }
 
     public KafkaEntity(String Value, KafkaHeaders[] headers){
-        this.Headers = headers;
+        if (headers == null){
+            headers = new KafkaHeaders[0];
+        }        
+        this.Headers = headers;        
         this.Value = Value;
         this.Offset = 0;
         this.Partition = 0;
