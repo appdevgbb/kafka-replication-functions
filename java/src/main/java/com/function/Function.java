@@ -37,11 +37,14 @@ public class Function {
         String message = request.getQueryParameters().get("message");
         message = request.getBody().orElse(message);        
         context.getLogger().info("Message:" + message);
-        
+
+        // Create an array of KafkaEntity along with an 
+        // array of KafkaHeaders to demonstrate an output 
+        // binding that can publish multiple events with headers
         KafkaEntity[] kafkaEvents = new KafkaEntity[1];
         KafkaHeaders[] headers1 = new KafkaHeaders[1];
-        headers1[0] = new KafkaHeaders("test-header-key", "test-header-value");        
-        KafkaEntity kafkaEvent1 = new KafkaEntity(message, headers1);
+        headers1[0] = new KafkaHeaders("test-header-key", "test-header-java");        
+        KafkaEntity kafkaEvent1 = new KafkaEntity(message, headers1);        
         kafkaEvents[0] = kafkaEvent1;                
         
         output.setValue(kafkaEvents);
