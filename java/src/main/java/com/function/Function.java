@@ -44,7 +44,6 @@ public class Function {
         KafkaEntity kafkaEvent1 = new KafkaEntity(message, headers1);
         kafkaEvents[0] = kafkaEvent1;                
         
-        //output.setValue(message);
         output.setValue(kafkaEvents);
 
         return request.createResponseBuilder(HttpStatus.OK).body(message).build();
@@ -83,25 +82,39 @@ public class Function {
             
             // Create an array for the replicated events
             KafkaEntity[] replicatedEvents = new KafkaEntity[numEvents];
-
+            
+            // Iterate through the collection of events and update them
+            // for replication
             Gson gson = new Gson();            
             for (int i = 0; i < kafkaEvents.size(); i++) {                
-                KafkaEntity kevent = gson.fromJson(kafkaEvents.get(i),KafkaEntity.class);
-                context.getLogger().info("Java Kafka trigger function called for message: " + kevent.Value);
-                context.getLogger().info("Headers for the message:");
-                            
-                // Decode the header value before setting it in the replicated event header
-                for (int h = 0; h < kevent.Headers.length; h++){
-                    String decodedValue = new String(Base64.getDecoder().decode(kevent.Headers[h].Value));
-                    context.getLogger().info("Key:" + kevent.Headers[h].Key + " Value:" + decodedValue); 
-                    kevent.Headers[h].Value = decodedValue;
-                }
+                KafkaEntity kevent = gson.fromJson(kafkaEvents.get(i),KafkaEntity.class);                                            
+                replicatedEvents[i] = ReplicateEvent(kevent);
+            }                       
 
-                // Add the replicated event to the array for the output binding
-                replicatedEvents[i] = kevent;
-            }               
-          
             output.setValue(replicatedEvents);
+    }
+
+    private KafkaEntity ReplicateEvent(KafkaEntity kafkaEntity)
+    {
+        // Create an array list of headers with decoded values
+        ArrayList<KafkaHeaders> headers = new ArrayList<KafkaHeaders>();
+        for (KafkaHeaders h : kafkaEntity.Headers){
+            String decodedValue = new String(Base64.getDecoder().decode(h.Value));
+            headers.add(new KafkaHeaders(h.Key, decodedValue));
+        }
+        
+        // Add the metadata properties for replication
+        headers.add(new KafkaHeaders("repl-enqueued-time", kafkaEntity.Timestamp));
+        headers.add(new KafkaHeaders("repl-offset", String.valueOf(kafkaEntity.Offset)));
+        headers.add(new KafkaHeaders("repl-partition", String.valueOf(kafkaEntity.Partition)));
+        headers.add(new KafkaHeaders("repl-topic", kafkaEntity.Topic));
+
+        // Covert to array and update the kafka entity with the 
+        // decoded headers and new replication values
+        KafkaHeaders[] decodedHeaders = headers.toArray(new KafkaHeaders[headers.size()]);
+        kafkaEntity.Headers = decodedHeaders;
+
+        return kafkaEntity;
     }
 
 }
