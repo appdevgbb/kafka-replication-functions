@@ -1,6 +1,8 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Kafka;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace KafkaReplicationFunctions
@@ -44,6 +46,13 @@ namespace KafkaReplicationFunctions
                     kafkaEvent.Headers.Add(h.Key, h.Value);
                 }
 
+                // Add replication metadata
+                DateTime enqueuedUtc = eventData.Timestamp.ToUniversalTime();
+                kafkaEvent.Headers.Add("repl-enqueued-time", Encoding.UTF8.GetBytes(enqueuedUtc.ToString("yyyy-MM-dd hh:mm:ss.fff")));
+                kafkaEvent.Headers.Add("repl-offset", Encoding.UTF8.GetBytes(eventData.Offset.ToString()));
+                kafkaEvent.Headers.Add("repl-partition", Encoding.UTF8.GetBytes(eventData.Partition.ToString()));
+                kafkaEvent.Headers.Add("repl-topic", Encoding.UTF8.GetBytes(eventData.Topic));
+                
                 await replicatedEvents.AddAsync(kafkaEvent);
             }
             
