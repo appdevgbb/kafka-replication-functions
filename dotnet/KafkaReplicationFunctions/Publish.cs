@@ -22,7 +22,7 @@ namespace KafkaReplicationFunctions
                    Password = "%KafkaPassword%",  
                    Protocol = BrokerProtocol.SaslSsl,
                    SslCaLocation = "confluent_cloud_cacert.pem",
-                   AuthenticationMode = BrokerAuthenticationMode.Plain)] IAsyncCollector<KafkaEventData<string>> replicatedEvents,
+                   AuthenticationMode = BrokerAuthenticationMode.Plain)] IAsyncCollector<KafkaEventData<string>> events,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
@@ -39,7 +39,7 @@ namespace KafkaReplicationFunctions
                 kafkaEvent.Headers.Add("test-header1", System.Text.Encoding.UTF8.GetBytes("dotnet-test1"));
                 kafkaEvent.Headers.Add("test-header2", System.Text.Encoding.UTF8.GetBytes("dotnet-test2"));
 
-                await replicatedEvents.AddAsync(kafkaEvent);
+                await events.AddAsync(kafkaEvent);
             }
             catch (Exception ex) 
             {
